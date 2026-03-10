@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-03-10 15:11:37Z" end-time="2026-03-10 15:11:37Z" duration="0.0042956">
+  <test-suite type="TestSuite" id="1014" name="unity-tutorial" fullname="unity-tutorial" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-03-10 15:11:37Z" end-time="2026-03-10 15:11:37Z" duration="0.004296" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1004" name="EditTest.dll" fullname="C:/Dev/Unity/unity-tutorial/Library/ScriptAssemblies/EditTest.dll" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-03-10 15:11:37Z" end-time="2026-03-10 15:11:37Z" duration="0.000898" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="41320" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1001" name="NewTestScript" fullname="NewTestScript" classname="NewTestScript" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-03-10 15:11:37Z" end-time="2026-03-10 15:11:37Z" duration="0.000588" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1002" name="GameObject_HasRigidbody" fullname="NewTestScript.GameObject_HasRigidbody" methodname="GameObject_HasRigidbody" classname="NewTestScript" runstate="Runnable" seed="490663" result="Passed" start-time="2026-03-10 15:11:37Z" end-time="2026-03-10 15:11:37Z" duration="0.000195" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[Saving results to: C:/Users/josep/AppData/LocalLow/DefaultCompany/unity-tutorial\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
