@@ -2,7 +2,16 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Moves forward/backward and rotates with WASD/Arrow keys.
+/// Moves forward/backward and rotates with WASD/Arrow keys OR PS5 DualSense left stick.
+/// Uses the New Input System (action-based) so the same actions fire from both devices.
+///
+/// SETUP REQUIRED (see guide):
+///   1. Add a PlayerInput component to this GameObject
+///   2. Assign your PlayerInputs.inputactions asset to it
+///   3. The asset must have a "Player" action map with:
+///      - "Move"  (Value, Vector2) — WASD bound + Gamepad/leftStick
+///      - "Look"  (Value, Vector2) — Mouse/delta bound + Gamepad/rightStick
+///      - "Jump"  (Button)         — Space bound + Gamepad/buttonSouth (Cross ×)
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
@@ -15,55 +24,80 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private bool jumpRequested;
 
-    private void Start()
+    // ── Input Action references ──────────────────────────────────────────────
+    // These are resolved from the PlayerInput component at startup.
+    // The same action works for Keyboard/Mouse AND PS5 DualSense — no if/else.
+    private InputAction moveAction;
+    private InputAction jumpAction;
+
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+
+        // Grab the PlayerInput component that holds the .inputactions asset
+        var playerInput = GetComponent<PlayerInput>();
+
+        if (playerInput != null)
+        {
+            // Bind to named actions — device-agnostic (keyboard OR PS5, whichever fires)
+            moveAction = playerInput.actions["Move"];
+            jumpAction = playerInput.actions["Jump"];
+
+            // Subscribe to jump as an event so we never miss a quick tap
+            jumpAction.performed += _ => jumpRequested = true;
+        }
+        else
+        {
+            // Fallback warning — PlayerInput component is required
+            Debug.LogWarning("PlayerController: No PlayerInput component found. " +
+                             "Add one and assign your PlayerInputs asset.");
+        }
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-        {
-            jumpRequested = true;
-        }
+        // Enable actions when this object is active
+        moveAction?.Enable();
+        jumpAction?.Enable();
+    }
+
+    private void OnDisable()
+    {
+        // Always disable and unsubscribe to avoid memory leaks
+        jumpAction.performed -= _ => jumpRequested = true;
+        moveAction?.Disable();
+        jumpAction?.Disable();
     }
 
     private void FixedUpdate()
     {
-        Vector2 moveInput = Vector2.zero;
+        // ReadValue works identically whether input came from WASD or PS5 Left Stick
+        // Keyboard composite gives -1/0/+1; gamepad stick gives a smooth float
+        Vector2 moveInput = moveAction != null
+            ? moveAction.ReadValue<Vector2>()
+            : Vector2.zero;
 
-        if (Keyboard.current == null)
-            return;
-
-        // Forward/backward
-        if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
-            moveInput.y = 1f;
-        if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
-            moveInput.y = -1f;
-
-        // Left/right rotation
-        if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
-            moveInput.x = -1f;
-        if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
-            moveInput.x = 1f;
-
-        // Move in facing direction
+        // ── Movement (same logic as before, just input source changed) ───────
+        // Move in the direction the player is facing (forward/backward)
         Vector3 movement = transform.forward * moveInput.y * speed * Time.fixedDeltaTime;
         rb.MovePosition(rb.position + movement);
 
-        // Jump
+        // ── Jump ─────────────────────────────────────────────────────────────
+        // jumpRequested is set by the action event (keyboard Space OR Cross ×)
         if (jumpRequested && IsGrounded())
         {
             Vector3 velocity = rb.linearVelocity;
             velocity.y = jumpVelocity;
             rb.linearVelocity = velocity;
         }
-
         jumpRequested = false;
 
-        // Y-axis rotation (invert when going backwards)
+        // ── Y-axis rotation ───────────────────────────────────────────────────
+        // moveInput.x is negative=left, positive=right (WASD A/D or stick X axis)
         float turnDirection = moveInput.x;
-        if (moveInput.y < 0)
+
+        // Invert turn when walking backward (same as original behaviour)
+        if (moveInput.y < 0f)
             turnDirection = -turnDirection;
 
         float turn = turnDirection * rotationSpeed * Time.fixedDeltaTime;
