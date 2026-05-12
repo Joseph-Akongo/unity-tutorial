@@ -1,0 +1,6 @@
+﻿<Solution>
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="EditTest.csproj" />
+  <Project Path="PlayModeTest.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+</Solution>
